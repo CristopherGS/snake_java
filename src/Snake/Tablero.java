@@ -25,27 +25,25 @@ import javax.swing.Timer;
  * @author Usuario
  */
 public class Tablero extends JPanel implements ActionListener {
-     private final int B_WIDTH = 600;//tamaño del tablero
-    private final int B_HEIGHT = 600;//tamaño del tablero
-    private final int DOT_SIZE = 10;//tamaño de la manzana en pixeles
+     private final int ancho = 600;//tamaño del tablero
+    private final int alto = 600;//tamaño del tablero
+    private final int size_comida = 10;//tamaño de la manzana en pixeles
     private final int ALL_DOTS = 900;//define cuantas posiciones posibles
-    private final int RAND_POS = 29;//calula la posicion de la manzana 
-    private final int DELAY = 140;//velocidad del juego
-
-    private final int x[] = new int[ALL_DOTS];//almazenan la posicion de la serpiente
-    private final int y[] = new int[ALL_DOTS];
-     
+    private final int aleatorio_comida = 29;//calula la posicion de la manzana 
+    private final int rapidez = 100;//velocidad del juego
+    
+    private final int x[] = new int[ALL_DOTS],y[] = new int[ALL_DOTS];//almazenan la posicion de la serpiente 
     private int puntuacion=0, aumento, comida_x, comida_y; 
     private boolean direccion_izquierda = false, direccion_derecha = true, direccion_arriba = false, direccion_abajo = false, inicioJuego = true;
     private Timer timer;
     private Image cabeza, comida, cuerpo;
   
     public Tablero() {
-              addKeyListener(new TAdapter());
-        setBackground(Color.black);
+        addKeyListener(new TAdapter());
+        setBackground(Color.white);
         setFocusable(true);
 
-        setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
+        setPreferredSize(new Dimension(ancho, alto));
         ImageIcon comida1 = new ImageIcon("2.png");
         comida = comida1.getImage();
         ImageIcon cuerpo1 = new ImageIcon("3.png");
@@ -89,9 +87,9 @@ public class Tablero extends JPanel implements ActionListener {
             y[i] = 50;
         }
         
-        locateApple();
+        UbicacionComida();
 
-        timer = new Timer(DELAY, this);
+        timer = new Timer(rapidez, this);
         timer.start();
     }
 
@@ -120,31 +118,37 @@ public class Tablero extends JPanel implements ActionListener {
 
         } else {
 
-            gameOver(g);
-            score(g);
+            FinJuego(g);
+            Puntuacion(g);
            // timeGame(g);
         }        
     }
 
-    private void gameOver(Graphics g) {
-        
+    private void FinJuego(Graphics g) {
+        ImageIcon derecha = new ImageIcon("derecha.png");
+        cabeza = derecha.getImage();
         String texto = "Fin del Juego";
         Font small = new Font("..", Font.BOLD, 20);
         FontMetrics metr = getFontMetrics(small);
-
-        g.setColor(Color.white);
-        g.setFont(small);
-        g.drawString(texto, (600 - metr.stringWidth(texto)) / 2, 200 / 2);
-    }
-    private void score(Graphics g) {
         
+        g.setColor(Color.black);
+        g.setFont(small);
+        g.drawString(texto, 240, 450);
+    }
+    private void Puntuacion(Graphics g) {
+       
         String msg = "Puntuacion: "+ puntuacion;
         Font small = new Font("..", Font.BOLD, 15);
         FontMetrics metr = getFontMetrics(small);
+        
 
-        g.setColor(Color.WHITE);
+        g.setColor(Color.black);
         g.setFont(small);
-        g.drawString(msg, (600 - metr.stringWidth(msg)) / 2, 250 / 2);
+        g.drawString(msg, 240, 490);
+        
+        ImageIcon derecha = new ImageIcon("game over.png");
+        cabeza =  derecha.getImage();
+        g.drawImage(cabeza, 130, 50, 300, 300, this);
     }
     /*
     
@@ -160,17 +164,18 @@ public class Tablero extends JPanel implements ActionListener {
     }
 */
 
-    private void checkApple() {
+    private void Comer() {
 
         if ((x[0] == comida_x) && (y[0] == comida_y)) {
 
             aumento++;
             puntuacion++;
-            locateApple();
+          
+            UbicacionComida();
         }
     }
 
-    private void move() {
+    private void Mover() {
 
         for (int z = aumento; z > 0; z--) {
             x[z] = x[(z - 1)];
@@ -178,20 +183,20 @@ public class Tablero extends JPanel implements ActionListener {
         }
 
         if (direccion_izquierda) {
-            x[0] -= DOT_SIZE;
+            x[0] -= size_comida;
             
         }
 
         if (direccion_derecha) {
-            x[0] += DOT_SIZE;
+            x[0] += size_comida;
         }
 
         if (direccion_arriba) {
-            y[0] -= DOT_SIZE;
+            y[0] -= size_comida;
         }
 
         if (direccion_abajo) {
-            y[0] += DOT_SIZE;
+            y[0] += size_comida;
         }
     }
 
@@ -204,7 +209,7 @@ public class Tablero extends JPanel implements ActionListener {
             }
         }
 
-        if (y[0] >= B_HEIGHT) {
+        if (y[0] >= alto) {
             inicioJuego = false;
         }
 
@@ -212,7 +217,7 @@ public class Tablero extends JPanel implements ActionListener {
             inicioJuego = false;
         }
 
-        if (x[0] >= B_WIDTH) {
+        if (x[0] >= ancho) {
             inicioJuego = false;
         }
 
@@ -225,13 +230,13 @@ public class Tablero extends JPanel implements ActionListener {
         }
     }
 
-    private void locateApple() {
+    private void UbicacionComida() {
 
-        int r = (int) (Math.random() * RAND_POS);
-        comida_x = ((r * DOT_SIZE));
+        int r = (int) (Math.random() * aleatorio_comida);
+        comida_x = ((r * size_comida));
 
-        r = (int) (Math.random() * RAND_POS);
-        comida_y = ((r * DOT_SIZE));
+        r = (int) (Math.random() * aleatorio_comida);
+        comida_y = ((r * size_comida));
     }
 
     @Override
@@ -239,9 +244,9 @@ public class Tablero extends JPanel implements ActionListener {
 
         if (inicioJuego) {
 
-            checkApple();
+            Comer();
             choque();
-            move();
+            Mover();
         }
 
         repaint();
