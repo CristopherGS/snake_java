@@ -1,4 +1,9 @@
-package com.zetcode;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Snake;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -15,9 +20,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-public class tablero extends JPanel implements ActionListener {
-
-    private final int B_WIDTH = 600;//tamaño del tablero
+/**
+ *
+ * @author Usuario
+ */
+public class Tablero extends JPanel implements ActionListener {
+     private final int B_WIDTH = 600;//tamaño del tablero
     private final int B_HEIGHT = 600;//tamaño del tablero
     private final int DOT_SIZE = 10;//tamaño de la manzana en pixeles
     private final int ALL_DOTS = 900;//define cuantas posiciones posibles
@@ -26,27 +34,28 @@ public class tablero extends JPanel implements ActionListener {
 
     private final int x[] = new int[ALL_DOTS];//almazenan la posicion de la serpiente
     private final int y[] = new int[ALL_DOTS];
-
-    private int puntos;
-    private int apple_x;
-    private int apple_y;
-
-    private boolean direccion_izquierda = false;
-    private boolean direccion_derecha = true;
-    private boolean direccion_arriba = false;
-    private boolean direccion_abajo = false;
-    private boolean inicioJuego = true;
-
+     
+    private int puntuacion=0, aumento, comida_x, comida_y; 
+    private boolean direccion_izquierda = false, direccion_derecha = true, direccion_arriba = false, direccion_abajo = false, inicioJuego = true;
     private Timer timer;
-    private Image cabeza;
-    private Image apple;
-    private Image cuerpo;
+    private Image cabeza, comida, cuerpo;
+  
+    public Tablero() {
+              addKeyListener(new TAdapter());
+        setBackground(Color.black);
+        setFocusable(true);
 
-    public tablero() {
-        
-        inicioTableto();
+        setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
+        ImageIcon comida1 = new ImageIcon("2.png");
+        comida = comida1.getImage();
+        ImageIcon cuerpo1 = new ImageIcon("3.png");
+        cuerpo = cuerpo1.getImage();
+        ImageIcon derecha = new ImageIcon("derecha.png");
+        cabeza = derecha.getImage();
+        inicioJuego();
+       // inicioTableto();
     }
-    
+    /*
     private void inicioTableto() {
 
         addKeyListener(new TAdapter());
@@ -54,24 +63,28 @@ public class tablero extends JPanel implements ActionListener {
         setFocusable(true);
 
         setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
-        cargaImagenes();
         inicioJuego();
     }
-
+    */
+/*
     private void cargaImagenes() {
      
-        ImageIcon iia = new ImageIcon("src/resources/apple.png");
-        apple = iia.getImage();
+        ImageIcon comida1 = new ImageIcon("2.png");
+        comida = comida1.getImage();
 
-        ImageIcon iih = new ImageIcon("src/resources/head.png");
-        cuerpo = iih.getImage();
+        ImageIcon cuerpo1 = new ImageIcon("3.png");
+        cuerpo = cuerpo1.getImage();
+        
+        ImageIcon derecha = new ImageIcon("derecha.png");
+         cabeza = derecha.getImage();
     }
+    */
 
     private void inicioJuego() {
 
-        puntos = 3;
+        aumento = 3;
 
-        for (int i = 0; i < puntos; i++) {
+        for (int i = 0; i < aumento; i++) {
             x[i] = 50 - i * 10;
             y[i] = 50;
         }
@@ -93,9 +106,9 @@ public class tablero extends JPanel implements ActionListener {
         
         if (inicioJuego) {
 
-            g.drawImage(apple, apple_x, apple_y, this);
+            g.drawImage(comida, comida_x, comida_y, this);
 
-            for (int z = 0; z < puntos; z++) {
+            for (int z = 0; z < aumento; z++) {
                 if (z == 0) {
                     g.drawImage(cabeza, x[z], y[z], this);
                 } else {
@@ -109,30 +122,32 @@ public class tablero extends JPanel implements ActionListener {
 
             gameOver(g);
             score(g);
-            timeGame(g);
+           // timeGame(g);
         }        
     }
 
     private void gameOver(Graphics g) {
         
-        String msg = "Game Over";
+        String texto = "Fin del Juego";
         Font small = new Font("..", Font.BOLD, 20);
         FontMetrics metr = getFontMetrics(small);
 
         g.setColor(Color.white);
         g.setFont(small);
-        g.drawString(msg, (600 - metr.stringWidth(msg)) / 2, 200 / 2);
+        g.drawString(texto, (600 - metr.stringWidth(texto)) / 2, 200 / 2);
     }
     private void score(Graphics g) {
         
-        String msg = "You Score: "+ puntos;
+        String msg = "Puntuacion: "+ puntuacion;
         Font small = new Font("..", Font.BOLD, 15);
         FontMetrics metr = getFontMetrics(small);
 
-        g.setColor(Color.green);
+        g.setColor(Color.WHITE);
         g.setFont(small);
         g.drawString(msg, (600 - metr.stringWidth(msg)) / 2, 250 / 2);
     }
+    /*
+    
         private void timeGame(Graphics g) {
         
         String msg = "You time: "+ timer;
@@ -143,19 +158,21 @@ public class tablero extends JPanel implements ActionListener {
         g.setFont(small);
         g.drawString(msg, (600 - metr.stringWidth(msg)) / 2, 300 / 2);
     }
+*/
 
     private void checkApple() {
 
-        if ((x[0] == apple_x) && (y[0] == apple_y)) {
+        if ((x[0] == comida_x) && (y[0] == comida_y)) {
 
-            puntos++;
+            aumento++;
+            puntuacion++;
             locateApple();
         }
     }
 
     private void move() {
 
-        for (int z = puntos; z > 0; z--) {
+        for (int z = aumento; z > 0; z--) {
             x[z] = x[(z - 1)];
             y[z] = y[(z - 1)];
         }
@@ -180,7 +197,7 @@ public class tablero extends JPanel implements ActionListener {
 
     private void choque() {
 
-        for (int z = puntos; z > 0; z--) {
+        for (int z = aumento; z > 0; z--) {
 
             if ((z > 4) && (x[0] == x[z]) && (y[0] == y[z])) {
                 inicioJuego = false;
@@ -211,10 +228,10 @@ public class tablero extends JPanel implements ActionListener {
     private void locateApple() {
 
         int r = (int) (Math.random() * RAND_POS);
-        apple_x = ((r * DOT_SIZE));
+        comida_x = ((r * DOT_SIZE));
 
         r = (int) (Math.random() * RAND_POS);
-        apple_y = ((r * DOT_SIZE));
+        comida_y = ((r * DOT_SIZE));
     }
 
     @Override
@@ -241,7 +258,7 @@ public class tablero extends JPanel implements ActionListener {
                 direccion_izquierda = true;
                 direccion_arriba = false;
                 direccion_abajo = false;
-                ImageIcon arriba = new ImageIcon("src/resources/izquierda.png");
+                ImageIcon arriba = new ImageIcon("izquierda.png");
                 cabeza = arriba.getImage();
                 
             }
@@ -250,15 +267,15 @@ public class tablero extends JPanel implements ActionListener {
                 direccion_derecha = true;
                 direccion_arriba = false;
                 direccion_abajo = false;
-                ImageIcon arriba = new ImageIcon("src/resources/derecha.png");
-                cabeza = arriba.getImage();
+                ImageIcon derecha = new ImageIcon("derecha.png");
+                cabeza = derecha.getImage();
             }
 
             if ((key == KeyEvent.VK_UP) && (!direccion_abajo)) {
                 direccion_arriba = true;
                 direccion_derecha = false;
                 direccion_izquierda = false;
-                ImageIcon arriba = new ImageIcon("src/resources/arriba.png");
+                ImageIcon arriba = new ImageIcon("arriba.png");
                 cabeza = arriba.getImage();
                 
             }
@@ -267,9 +284,10 @@ public class tablero extends JPanel implements ActionListener {
                 direccion_abajo = true;
                 direccion_derecha = false;
                 direccion_izquierda = false;
-                ImageIcon arriba = new ImageIcon("src/resources/abajo.png");
-                cabeza = arriba.getImage();
+                ImageIcon abajo = new ImageIcon("abajo.png");
+                cabeza = abajo.getImage();
             }
         }
     }
+    
 }
